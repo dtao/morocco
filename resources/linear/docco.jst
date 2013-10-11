@@ -6,7 +6,18 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" media="all" href="public/stylesheets/normalize.css" />
   <link rel="stylesheet" media="all" href="<%= css %>" />
+  <script type="text/javascript" src="../<%= path.basename(sources[0]) %>"></script>
+  <script type="text/javascript" src="public/javascripts/should.js"></script>
 </head>
+
+<%
+  function cheapEscape(text) {
+    return text.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+%>
+
 <body>
   <div class="container">
     <div class="page">
@@ -44,6 +55,50 @@
         <%= section.docsHtml %>
         <% if (!(/^\s*$/).test(section.codeText)) { %>
           <%= section.codeHtml %>
+        <% } %>
+
+        <% if (section.examples) { %>
+          <h4>Examples</h4>
+          <table class="examples">
+            <thead>
+              <tr>
+                <th>Test Case</th>
+                <th>Expectation</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% for (var j = 0; j < section.examples.length; j++) { %>
+                <tr>
+                  <td><%= cheapEscape(section.examples[j].input) %></td>
+                  <td><%= cheapEscape(section.examples[j].output) %></td>
+                  <td id="example-<%= i %>-<%= j %>"></td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+
+          <script type="text/javascript">
+            window.addEventListener('load', function() {
+              <% for (var j = 0; j < section.examples.length; j++) { %>
+                (function() {
+                  // <%= section.examples[j].input %> => <%= section.examples[j].output %>
+
+                  var exampleCell = document.getElementById('example-<%= i %>-<%= j %>');
+
+                  try {
+                    var result = <%= section.examples[j].input %>;
+                    result.should.eql(<%= section.examples[j].output %>);
+                    exampleCell.textContent = ':)';
+                  } catch (e) {
+                    exampleCell.textContent = ':(';
+                  }
+                }());
+
+              <% } %>
+            });
+          </script>
         <% } %>
       <% } %>
       <div class="fleur">h</div>
