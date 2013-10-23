@@ -180,8 +180,8 @@ name of the source file.
       hasTitle = first and first.type is 'heading' and first.depth is 1
       title = if hasTitle then first.text else path.basename source
 
-      html = config.template {sources: config.sources, title, hasTitle, sections,
-        path, destination,}
+      html = config.template {sources: config.sources, css: path.basename(config.css),
+        title, hasTitle, sections, path, destination,}
 
       console.log "morocco: #{source} -> #{destination source}"
       fs.writeFileSync destination(source), html

@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-
 <html>
+
 <head>
   <title><%= title %></title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <link rel="stylesheet" media="all" href="public/stylesheets/normalize.css" />
   <link rel="stylesheet" media="all" href="<%= css %>" />
   <script type="text/javascript" src="../<%= path.basename(sources[0]) %>"></script>
   <script type="text/javascript" src="public/javascripts/should.js"></script>
@@ -19,90 +18,91 @@
 %>
 
 <body>
-  <div class="container">
-    <div class="page">
-
-      <div class="header">
-        <% if (hasTitle) { %>
-          <% var section = sections.shift(); %>
-          <%= section.docsHtml %>
-          <% if (!(/^\s*$/).test(section.codeText)) { %>
-            <%= section.codeHtml %>
-          <% } %>
-        <% } else { %>
-          <h1><%= title %></h1>
+  <main>
+    <header>
+      <% if (hasTitle) { %>
+        <% var section = sections.shift(); %>
+        <%= section.docsHtml %>
+        <% if (!(/^\s*$/).test(section.codeText)) { %>
+          <%= section.codeHtml %>
         <% } %>
+      <% } else { %>
+        <h1><%= title %></h1>
+      <% } %>
 
-        <% if (sources.length > 1) { %>
-          <div class="toc">
-            <h3>Table of Contents</h3>
-            <ol>
-              <% for (var i=0, l = sources.length; i < l; i++) { %>
-                <% var source = sources[i]; %>
-                <li>
-                  <a class="source" href="<%= path.basename(destination(source)) %>">
-                    <%= path.basename(source) %>
-                  </a>
-                </li>
-              <% } %>
-            </ol>
-          </div>
-        <% } %>
-      </div>
+      <% if (sources.length > 1) { %>
+        <div class="toc">
+          <h3>Table of Contents</h3>
+          <ol>
+            <% for (var i=0, l = sources.length; i < l; i++) { %>
+              <% var source = sources[i]; %>
+              <li>
+                <a class="source" href="<%= path.basename(destination(source)) %>">
+                  <%= path.basename(source) %>
+                </a>
+              </li>
+            <% } %>
+          </ol>
+        </div>
+      <% } %>
+    </header>
 
-      <% for (var i = 0, l = sections.length; i<l; i++) { %>
-        <% var section = sections[i]; %>
+    <% for (var i = 0, l = sections.length; i<l; i++) { %>
+      <% var section = sections[i]; %>
+      <section>
         <%= section.docsHtml %>
         <% if (!(/^\s*$/).test(section.codeText)) { %>
           <%= section.codeHtml %>
         <% } %>
 
         <% if (section.examples) { %>
-          <h4>Examples</h4>
-          <table class="examples">
-            <thead>
-              <tr>
-                <th>Test Case</th>
-                <th>Expectation</th>
-                <th>Result</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <% for (var j = 0; j < section.examples.length; j++) { %>
+          <div class="examples">
+            <h4>Examples</h4>
+            <table class="examples">
+              <thead>
                 <tr>
-                  <td><%= cheapEscape(section.examples[j].input) %></td>
-                  <td><%= cheapEscape(section.examples[j].output) %></td>
-                  <td id="example-<%= i %>-<%= j %>"></td>
+                  <th>Test Case</th>
+                  <th>Expectation</th>
+                  <th>Result</th>
                 </tr>
-              <% } %>
-            </tbody>
-          </table>
+              </thead>
 
-          <script type="text/javascript">
-            window.addEventListener('load', function() {
-              <% for (var j = 0; j < section.examples.length; j++) { %>
-                (function() {
-                  // <%= section.examples[j].input %> => <%= section.examples[j].output %>
+              <tbody>
+                <% for (var j = 0; j < section.examples.length; j++) { %>
+                  <tr>
+                    <td><%= cheapEscape(section.examples[j].input) %></td>
+                    <td><%= cheapEscape(section.examples[j].output) %></td>
+                    <td id="example-<%= i %>-<%= j %>"></td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
 
-                  var exampleCell = document.getElementById('example-<%= i %>-<%= j %>');
+            <script type="text/javascript">
+              window.addEventListener('load', function() {
+                <% for (var j = 0; j < section.examples.length; j++) { %>
+                  (function() {
+                    // <%= section.examples[j].input %> => <%= section.examples[j].output %>
 
-                  try {
-                    var result = <%= section.examples[j].input %>;
-                    result.should.eql(<%= section.examples[j].output %>);
-                    exampleCell.textContent = ':)';
-                  } catch (e) {
-                    exampleCell.textContent = ':(';
-                  }
-                }());
+                    var exampleCell = document.getElementById('example-<%= i %>-<%= j %>');
 
-              <% } %>
-            });
-          </script>
+                    try {
+                      var result = <%= section.examples[j].input %>;
+                      result.should.eql(<%= section.examples[j].output %>);
+                      exampleCell.textContent = ':)';
+                    } catch (e) {
+                      exampleCell.textContent = ':(';
+                    }
+                  }());
+
+                <% } %>
+              });
+            </script>
+          </div>
         <% } %>
-      <% } %>
-      <div class="fleur">h</div>
-    </div>
-  </div>
+      </section>
+    <% } %>
+  </main>
 </body>
+
 </html>
