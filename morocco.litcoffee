@@ -23,7 +23,6 @@ Morocco is basically Docco plus some special logic to handle the `@examples` tag
 in comments. These are parsed to generate specs that may accompany the generated
 documentation.
 
-
 Main Documentation Generation Functions
 ---------------------------------------
 
@@ -181,8 +180,8 @@ name of the source file.
       hasTitle = first and first.type is 'heading' and first.depth is 1
       title = if hasTitle then first.text else path.basename source
 
-      html = config.template {sources: config.sources, css: path.basename(config.css),
-        title, hasTitle, sections, path, destination,}
+      html = config.template {sources: config.sources, title, hasTitle, sections,
+        path, destination,}
 
       console.log "morocco: #{source} -> #{destination source}"
       fs.writeFileSync destination(source), html
@@ -195,29 +194,24 @@ Default configuration **options**. All of these may be extended by
 user-specified options.
 
     defaults =
-      layout:     'parallel'
+      layout:     'linear'
       output:     'docs'
-      template:   null
       css:        null
       extension:  null
       languages:  {}
 
-**Configure** this particular run of Morocco. We might use a passed-in external
-template, or one of the built-in **layouts**. We only attempt to process
-source files for languages for which we have definitions.
+**Configure** this particular run of Morocco. There is only one layout: 'linear' (the
+user can style this however he/she wants). We only attempt to process source files for
+languages for which we have definitions.
 
     configure = (options) ->
       config = _.extend {}, defaults, _.pick(options, _.keys(defaults)...)
 
-      config.languages = buildMatchers config.languages
-      if options.template
-        config.layout = null
-      else
-        dir = config.layout = path.join __dirname, 'resources', config.layout
-        config.public       = path.join dir, 'public' if fs.existsSync path.join dir, 'public'
-        config.template     = path.join dir, 'docco.jst'
-        config.css          = options.css or path.join dir, 'docco.css'
-      config.template = _.template fs.readFileSync(config.template).toString()
+      config.languages    = buildMatchers config.languages
+      config.layout = dir = path.join __dirname, 'resources', config.layout
+      config.public       = path.join dir, 'public' if fs.existsSync path.join dir, 'public'
+      config.css          = options.css or path.join dir, 'docco.css'
+      config.template     = _.template fs.readFileSync(path.join(dir, 'docco.jst')).toString()
 
       config.sources = options.args.filter((source) ->
         lang = getLanguage source, config
@@ -294,10 +288,8 @@ Parse options using [Commander](https://github.com/visionmedia/commander.js).
       commander.version(version)
         .usage('[options] files')
         .option('-L, --languages [file]', 'use a custom languages.json', _.compose JSON.parse, fs.readFileSync)
-        .option('-l, --layout [name]',    'choose a layout (parallel, linear or classic)', c.layout)
         .option('-o, --output [path]',    'output to a given folder', c.output)
         .option('-c, --css [file]',       'use a custom css file', c.css)
-        .option('-t, --template [file]',  'use a custom .jst template', c.template)
         .option('-e, --extension [ext]',  'assume a file extension for all inputs', c.extension)
         .parse(args)
         .name = "morocco"
